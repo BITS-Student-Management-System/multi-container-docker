@@ -1,0 +1,96 @@
+version: "2.2"
+
+services:
+  eureka-server:
+    image: eureka-server
+    container_name: eureka-server
+    build: .././service-registry
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    expose:
+      - 8761
+    ports:
+      - 8761:8761
+    networks:
+      - mynetwork
+  config-server:
+    image: config-server
+    container_name: config-server
+    build: .././cloud-config-server
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    expose:
+      - 9296
+    ports:
+      - 9296:9296
+    networks:
+      - mynetwork
+    depends_on:
+      - eureka-server
+  course-service:
+    image: course-service
+    container_name: course-service
+    build: .././course-service
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    expose:
+      - 9003
+    ports:
+      - 9003:9003
+    networks:
+      - mynetwork
+    depends_on:
+      - eureka-server
+  department-service:
+    image: department-service
+    container_name: department-service
+    build: .././department-service
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    expose:
+      - 9001
+    ports:
+      - 9001:9001
+    networks:
+      - mynetwork
+    depends_on:
+      - eureka-server
+      - activemq
+  student-service:
+    image: student-service
+    container_name: student-service
+    build: .././student-service
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    expose:
+      - 9002
+    ports:
+      - 9002:9002
+    networks:
+      - mynetwork
+    depends_on:
+      - eureka-server
+      - activemq
+  cloud-gateway:
+    image: cloud-gateway
+    container_name: cloud-gateway
+    build: .././cloud-gateway
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    expose:
+      - 9191
+    ports:
+      - 9191:9191
+    networks:
+      - mynetwork
+    depends_on:
+      - eureka-server
+  activemq:
+    image: webcenter/activemq:5.14.3
+    ports:
+      - 8161:8161
+      - 61616:61616
+    networks:
+      - mynetwork
+networks:
+  mynetwork: {}
